@@ -1,0 +1,235 @@
+USEFUL COMMANDS
+
+CLUSTER
+
+
+Check all my data
+qstat -n1 -t
+
+
+Remove all my jobs
+qselect -u musacchia | xargs qdel
+
+Stato dei nodi
+http://nirvana.tigem.it/ganglia
+
+Update PATH
+
+PATH=$PATH:/opt/software/ngs/bin
+in .bash_profile
+e poi 
+export PATH
+
+
+https://www.broadinstitute.org/gatk/guide/article?id=3060
+
+
+https://www.broadinstitute.org/gatk/guide/bp_step.php
+
+##########################################CHIAVE SSH
+cat ~/.ssh/id_rsa.pub | ssh fmusacch@login.galileo.cineca.it "cat >> ~/.ssh/authorized_keys"
+
+
+
+#########################################
+PERL LOCAL INSTALL
+
+perl Makefile.PL PREFIX=./modulos
+make
+make install
+Then, in the .pl file that requires the module, which is in ./
+
+use lib qw(./modulos/share/perl/5.8.8/); # You may need to change this path
+use module::name;
+The rest of the files (makefile.pl, module.pm, etc) require no changes.
+
+You can call the .pl file with just
+
+perl file.pl
+###########################################
+
+
+Get only specific rows from file
+
+sed -n '730,780p;781q' Family_Boisio/finalout_out/Family_Boisio.hg19_multianno.txt |
+
+
+###########################################
+Rinominare parte centrale di molti nomi file con nome simile in una cartella
+Es: 
+NA011_genova_trim_mergepe_align_mrdup.bam          NA011_genova_trim_mergepe_align_sortidx.bam
+NA011_genova_trim_mergepe_align_mrdup.sam          NA011_genova_trim_mergepe.fq
+
+
+for i in NA*; do mv $i ${i/NA001/NA011}; done
+###########################################
+Rinominare parte finale di molti nomi file con nome simile in una cartella
+
+for file in Motor_*; do mv $file $(echo $file | sed -e 's/.....$/\.txt/'); done
+/Volumes/MYMEMORIES/TIGEM
+Rinominare il numero lane quando devo usare più fastq da sequenziamenti diversi
+for file in *_rip/*; do mv $file $(echo $file | sed -e 's/L004/L008/'); done
+
+###########################################
+Fare una selezione di colonne di molti file in un solo comando creando file supplementari
+
+for file in UD_WGS_*_TRIO*SV.vcf.gz; do zcat $file | grep -v '^##' | cut -f1,2,4,5,7,10,11,12 > $file.txt; done
+
+
+#########################################
+Aggiungere una stringa ad una serie di folder in una directory
+
+for file in  *;do mv $file $(echo $file | sed -e 's/^/MotorV4_/'); done
+
+############################################
+Cambiare solo la prima riga di un file tsv
+
+cioa	ciao	oaic	ocia
+jifj	9	9	8
+dj	37	83	9
+
+var="ciao\tciao\tciao\tciao"
+sed "1s/.*/$var/" a
+
+ciao	ciao	ciao	ciao
+jifj	9	9	8
+dj	37	83	9
+
+#############################################
+
+Aggiungere una colonna ad una serie di file (in questo caso una colonna di uno)
+
+for f in a b c; do sed -i "s/$/\t1/" $f; done
+
+(posso usare anche il nome del file: for f in *.cov; do sed -i "s/$/\t$f/" $f; done)
+
+for f in  SB_ID_A404_P*omeDepth.csv; do awk -F"\t" '$6 <0.1' | tr -s ':' '\t' | sed 's/chrchr/chr/' |sed 's/-/\t/' | cut -f2-15 > $f ; done
+
+
+###########################################
+
+Visualizzare lo spazio occupato senza andare nelle sottocartelle
+
+du -ch | sort -h
+
+#######################
+
+Rimuovere righe vuote
+
+sed '/^$/d' 
+
+
+##########################
+
+Ricerca testo in file
+
+grep -rnw '/path/to/somewhere/' -e "pattern"
+
+-r or -R is recursive,
+-n is line number, and
+-w stands for match the whole word.
+-l (lower-case L) can be added to just give the file name of matching files.
+
+##########################IGV start web
+javaws igv_lm.jnlp
+
+
+####################Sum column with AWK
+
+awk '{ sum += $4 } END { print sum }'
+
+You could sum the column 57 of your file, and print it using
+awk -F"\t" '$6 <0.1'
+awk '{split($0,a,","); sum += a[57]} END {print sum}' 
+
+
+#####################Average of column AWK
+
+awk '{ total += $2 } END { print total/NR }' yourFile.whatever
+
+
+########################Remove useless spaces in between columns
+ciao\s\tbuongiorno\s\s\s\s\s\s\n
+diventa
+ciao\tbuongiorno\n
+
+sed 's/ \+/ /g' motor_v4_folders.txt | sed 's/ //g'  > motor_v4_folders
+
+
+###################Substitute newline with comma
+
+tr '\n' ','
+
+
+#######################Print a specific column by using column name with AWK
+awk '
+NR==1 {
+    for (i=1; i<=NF; i++) {
+        f[$i] = i
+    }
+}
+{ print  $(f["chr"]),$(f["func_refgene"]) }
+'UD_NA001_TRIO/finalout_out/UD_NA001_TRIO.hg19.final_out_resgr14.txt
+
+########################Get a column number using the column name AWK
+
+awk -F '\t' -v col='canonSplSites' 'NR==1{for (i=1; i<=NF; i++) if ($i==col) {print i;exit}}' file.txt
+
+
+
+########################## Prendi solo file e dimensioni da un ls e ordina per nome file
+
+ls -l /gss/gss_work/DRES_UDP/UDP_SAMPLES/* | grep 'fastq\.gz' | sed 's/ \+/ /g' | cut -f5,9 -d' ' | sort -t' ' -k2,2 
+
+
+#######################Get MD5Sum from an entire folder find /home/username/ -name "*.err"and separate with tab
+perl -e '$a=`md5sum /gss/gss_work/DRES_UDP/temprunz/*`; print $a;' | sed 's/ \+/\t/g'
+
+
+
+#######################Prendi righe di un file solo se in una colonna c'è un determinato valore
+
+
+
+awk -F"\t" '$4 >90  { print $1"\t"$2"\t"$3"\t"$4 }' file.in
+
+
+#########################ZIP Folder
+
+In order to "zip" a directory, the correct command would be
+
+tar -zcvf archive.tar.gz directory/ 
+This will tell tar to c (create) an archive from the files in directory (tar is recursive by default), compress it using the z (gzip) algorithm, store the output as a f (file) named archive.tar.gz, and v (verbosely) list (on /dev/stderr so it doesn't affect piped commands) all the files it adds to the archive.
+
+
+########################Subset records containing a char in a specific column
+
+The awk '$5 ~","' subsets records that contain a comma in the 5th column.
+
+
+####################### Go through strings into a file during a bash command
+
+while read p; do ls /pico/work/TELET_UDP/vargenius_analyses/$p/stats_out/; done < anals_clinex1.txt
+
+
+###################### Select only rows having one of the string inside a file given in input
+
+awk 'FNR==NR { a[$1]; next } { print > ($2 in a ? "present" : "deleted") }' file_list file_input
+
+
+#####################find in multiple files
+
+find /home/username/ -name "*.err"
+
+####################moving every second row to a new column with awk
+awk '{printf "%s%s",$0,NR%2?"\t":RS}'
+
+
+###########################AWK one liner to join lines with the same value in the first column
+awk -F'\t' -v OFS='\t' '{x=$1;$1="";a[x]=a[x]$0}END{for(x in a)print x,a[x]}' file
+
+
+#############################settare le Access Control List ACL
+setfacl -m user:fmusacch:rw-  /pico/work/TELET_TIGEM/vargenius_analyses/UD_MO101_P_biopsia/ NON BUONO
+setfacl -R -m g:TELET_TIGEM:rwx vargenius_analyses/
+
